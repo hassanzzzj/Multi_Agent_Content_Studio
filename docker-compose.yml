@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  multi-agent-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multi-agent-content-studio-free
+    ports:
+      - "8501:8501"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-llama-3.3-70b-versatile}
+      - MAX_SEARCH_RESULTS=${MAX_SEARCH_RESULTS:-5}
+      - DEBUG_MODE=${DEBUG_MODE:-False}
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - agent-network
+
+networks:
+  agent-network:
+    driver: bridge
